@@ -1,0 +1,54 @@
+#Crawl 100 recent Movies' information from naver. The information includes title, director, actors, rating, genre
+
+import urllib.request
+from bs4 import BeautifulSoup
+from pandas import DataFrame
+
+url = 'https://movie.naver.com/movie/running/current.nhn' #원하는 검색 결과 url
+html = urllib.request.urlopen(url).read() #url의 html을 가져온다. 이를 BeautifulSoup으로 분석한다.
+soup = BeautifulSoup(html, 'html.parser') #분석할 기본 준비 완료
+
+title = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li > dl > dt > a')
+for i in range(100):
+    title[i] = title[i].text
+
+genre = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li > dl > dd:nth-child(3) > dl > dd:nth-child(2) > span.link_txt')
+for i in range(100):
+    genre[i] = genre[i].text.replace("\n","").replace("\r","").replace("\t","")
+
+director = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li > dl > dd:nth-child(3) > dl > dd:nth-child(4) > span')
+for i in range(100):
+    director[i] = director[i].text.replace("\n","").replace("\r","").replace("\t","")
+    
+actor = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li > dl > dd:nth-child(3) > dl > dd:nth-child(6)')
+for i in range(100):
+    actor[i] = actor[i].text.replace("\n","").replace("\r","").replace("\t","")
+
+rating = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li > dl > dd.star > dl.info_star > dd > div > a > span.num')
+for i in range(100):
+    rating[i] = rating[i].text
+    
+Movie_List = []
+for i in range(100):
+    Movie_List.append(title[i])
+
+Genre_List = []
+for i in range(100):
+    Genre_List.append(genre[i])
+
+director_List = []
+for i in range(100):
+    director_List.append(director[i])
+
+actor_List = []
+for i in range(100):
+    actor_List.append(actor[i])
+    
+rating_List = []
+for i in range(100):
+    rating_List.append(rating[i])
+    
+Movie ={'Title':Movie_List, 'Genre':Genre_List, 'Director':director_List, 'Actor':actor_List, 'Rating':rating_List}
+Moviedf = DataFrame(Movie, columns = ['Title', 'Genre', 'Director', 'Actor', 'Rating'])
+
+Moviedf
